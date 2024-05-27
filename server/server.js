@@ -11,7 +11,7 @@ require('dotenv').config();
 const User = require('./models/User');
 const Cart = require('./models/Cart');
 const Log = require('./models/Log');
-const auth = require('./middleware/auth');
+const {auth, adminAuth} = require('./middleware/auth');
 
 
 const app = express();
@@ -93,7 +93,7 @@ app.post('/api/users/register', async (req, res) => {
         }
 
         //Create a payload with the user's ID
-        const payload = {user: {id: user.id}};
+        const payload = {user: {id: user.id, role: user.role}};
 
         //Sign a JSON Web Token with the payload and a secret key, set to expire in 1 hour
         jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 3600}, (err, token) => {
@@ -115,6 +115,11 @@ app.post('/api/users/register', async (req, res) => {
 
   app.get('/api/protected', auth, (req, res) => {
     res.json({ msg: 'This is a protected route', user: req.user });
+  });
+
+  // Admin Route Example
+app.get('/api/admin', auth, adminAuth, (req, res) => {
+    res.json({ msg: 'This is an admin route', user: req.user });
   });
   
 

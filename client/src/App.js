@@ -1,11 +1,22 @@
 import React from 'react';
-import HelloWorld from './components/HelloWorld';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
 
 const App = () => {
   return (
-    <div>
-      <HelloWorld />
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminRoute component={AdminPage} />} />
+          <Route path="/" element={<ProtectedRoute component={() => <div>Home Page</div>} />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 
