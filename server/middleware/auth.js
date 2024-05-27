@@ -15,7 +15,7 @@ const auth = (req, res, next) => {
 };
 
 const adminAuth = (req, res, next) => {
-  if (req.user.role !== 'Admin') {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({ msg: 'Access denied, admin only' });
   }
   next();

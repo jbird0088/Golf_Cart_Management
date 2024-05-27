@@ -49,9 +49,9 @@ app.post('/api/users/register', async (req, res) => {
       await user.save();
   
       //create a new payload with the user's id
-      const payload = { user: { id: user.id } };
+      const payload = { user: { id: user.id, role: user.role}};
 
-      //Sign a JSON Web Toiken with the payload and secret key, set to expire in 1 hour
+      //Sign a JSON Web Token with the payload and secret key, set to expire in 1 hour
       jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
 
         //Throw error during token generation if needed
@@ -113,14 +113,51 @@ app.post('/api/users/register', async (req, res) => {
     }
   });
 
-  app.get('/api/protected', auth, (req, res) => {
+app.get('/api/protected', auth, (req, res) => {
     res.json({ msg: 'This is a protected route', user: req.user });
   });
 
-  // Admin Route Example
 app.get('/api/admin', auth, adminAuth, (req, res) => {
     res.json({ msg: 'This is an admin route', user: req.user });
   });
+
+//Fetch all carts
+app.get('/api/carts', auth, adminAuth, async (req, res) => {
+    try {
+        //Find all existing carts
+        const carts = await Cart.find();
+        //send carts in response
+        res.json(carts);
+
+    //If error respond with 500 status
+    }catch(err){
+        res.status(500).json({msg: err.message});
+    }
+});
+
+//Add a new Cart
+/// Add a new cart
+app.post('/api/carts', auth, adminAuth, async (req, res) => {
+    const { Cart_Number, Cart_Status } = req.body;
+  
+    // Validate request body
+    if (Cart_Number == null || Cart_Status == null) {
+      return res.status(400).json({ msg: 'Please provide all required fields' });
+    }
+  
+    try {
+      let cart = await Cart.findOne({ Cart_Number });
+      if (cart) return res.status(400).json({ msg: 'Cart already exists' });
+  
+      cart = new Cart({ Cart_Number, Cart_Status });
+      await cart.save();
+      res.status(201).json(cart);
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
+    }
+  });
+  
+  
   
 
 io.on('connection', (socket) => {

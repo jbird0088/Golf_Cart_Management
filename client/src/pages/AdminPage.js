@@ -4,7 +4,7 @@ const AdminPage = () => {
   return (
     <div>
       <h1>Admin Page</h1>
-      <p>This is a protected admin route.</p>
+      <p>The AdminPage component is rendered.</p>
     </div>
   );
 };

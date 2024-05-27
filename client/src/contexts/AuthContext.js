@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Correct named import
+import {jwtDecode} from 'jwt-decode'; // Correct named import
 
 const AuthContext = createContext();
 
@@ -14,23 +14,47 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (authState.token) {
+      const token = localStorage.getItem('token');
+      if (token) {
         try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp < currentTime) {
+            console.error('Token expired');
+            localStorage.removeItem('token');
+            setAuthState({
+              token: null,
+              user: null,
+              isAuthenticated: false,
+              loading: false,
+            });
+            return;
+          }
+
+          console.log('Decoded Token:', decodedToken); // Log decoded token
+
           const res = await axios.get('http://localhost:5000/api/protected', {
             headers: {
-              'x-auth-token': authState.token,
+              'x-auth-token': token,
             },
           });
+          console.log('Fetch User Response:', res.data); // Log response
+
           setAuthState({
-            ...authState,
+            token,
             user: res.data.user,
             isAuthenticated: true,
             loading: false,
           });
+          console.log('Updated Auth State:', {
+            token,
+            user: res.data.user,
+            isAuthenticated: true,
+            loading: false,
+          }); // Log updated state
         } catch (err) {
-          console.error(err);
+          console.error('Error fetching user:', err); // Log error
           setAuthState({
-            ...authState,
             token: null,
             user: null,
             isAuthenticated: false,
@@ -39,37 +63,44 @@ const AuthProvider = ({ children }) => {
         }
       } else {
         setAuthState({
-          ...authState,
+          token: null,
+          user: null,
+          isAuthenticated: false,
           loading: false,
         });
       }
     };
     fetchUser();
-  }, [authState.token]);
+  }, []);
 
   const login = async (username, password) => {
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', { username, password });
       const { token } = res.data;
-      const decoded = jwtDecode(token); // Correct usage
+      const decoded = jwtDecode(token); 
+      console.log('Decoded JWT:', decoded); // Log the decoded JWT
 
       localStorage.setItem('token', token);
       setAuthState({
-        ...authState,
         token,
         user: decoded.user,
         isAuthenticated: true,
         loading: false,
       });
+      console.log('Updated Auth State after login:', {
+        token,
+        user: decoded.user,
+        isAuthenticated: true,
+        loading: false,
+      }); // Log updated state
     } catch (err) {
-      console.error(err);
+      console.error('Login Error:', err); // Log error
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setAuthState({
-      ...authState,
       token: null,
       user: null,
       isAuthenticated: false,
