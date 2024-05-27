@@ -11,6 +11,7 @@ require('dotenv').config();
 const User = require('./models/User');
 const Cart = require('./models/Cart');
 const Log = require('./models/Log');
+const auth = require('./middleware/auth');
 
 
 const app = express();
