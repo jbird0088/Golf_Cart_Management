@@ -6,6 +6,10 @@ import AdminRoute from './components/AdminRoute';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedPage from './pages/ProtectedPage'
+import 'bootswatch/dist/lux/bootstrap.min.css';
+import './styles.css';
+
+
 
 const App = () => {
   return (

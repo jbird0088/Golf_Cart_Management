@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import 'bootswatch/dist/lux/bootstrap.min.css'; // Ensure the correct path
+import '../styles.css';
+import deerCreekLogo from '../Logo/deercreek-logo.png'; // Import the logo
 
 const ProtectedPage = () => {
   const [carts, setCarts] = useState([]);
@@ -14,12 +17,12 @@ const ProtectedPage = () => {
     const fetchCarts = async () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
-          const res = await axios.get('http://localhost:5000/api/carts', {
+          const response = await axios.get('http://localhost:5000/api/carts', {
             headers: {
               'x-auth-token': authState.token,
             },
           });
-          setCarts(res.data);
+          setCarts(response.data);
         } catch (err) {
           console.error('Error fetching carts:', err);
         }
@@ -33,7 +36,7 @@ const ProtectedPage = () => {
     if (!cart) return;
 
     try {
-      const res = await axios.put(
+      const response = await axios.put(
         `http://localhost:5000/api/carts/${cartId}`,
         { Cart_Status: status, reason, maintenanceContacted },
         {
@@ -43,15 +46,14 @@ const ProtectedPage = () => {
         }
       );
 
-      // Update the cart order in the local state
-      const updatedCarts = carts.map(c => 
+      const updatedCarts = carts.map(c =>
         c._id === cartId ? { ...c, Cart_Status: status, Order: status === 'available' ? 1 : 999 } : c
       );
-      
-      // Sort the carts locally
+
       updatedCarts.sort((a, b) => a.Order - b.Order);
 
       setCarts(updatedCarts);
+      console.log(response);
     } catch (err) {
       console.error('Error updating cart status:', err);
     }
@@ -83,7 +85,6 @@ const ProtectedPage = () => {
 
     setCarts(reorderedCarts);
 
-    // Save the new order to the backend
     const saveOrder = async () => {
       try {
         await axios.post(
@@ -112,13 +113,14 @@ const ProtectedPage = () => {
   }
 
   return (
-    <div>
-      <h1>Protected Page</h1>
-      <h2>All Carts</h2>
+    <div className="container">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <img src={deerCreekLogo} alt="Deer Creek Logo" className="d-inline-block align-top" height="30" />
+      </nav>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="carts">
           {(provided) => (
-            <ul {...provided.droppableProps} ref={provided.innerRef}>
+            <ul className="list-group" {...provided.droppableProps} ref={provided.innerRef}>
               {carts.map((cart, index) => (
                 <Draggable key={cart._id} draggableId={cart._id} index={index}>
                   {(provided) => (
@@ -126,9 +128,13 @@ const ProtectedPage = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      className="list-group-item d-flex justify-content-between align-items-center"
                     >
-                      Cart {cart.Cart_Number}: {cart.Cart_Status}
+                      <div>
+                        <strong>Cart {cart.Cart_Number}:</strong> {cart.Cart_Status}
+                      </div>
                       <select
+                        className="form-select"
                         value={cart.Cart_Status}
                         onChange={e => handleStatusChange(cart._id, e.target.value)}
                       >
@@ -149,26 +155,28 @@ const ProtectedPage = () => {
       </DragDropContext>
 
       {selectedCart && (
-        <div>
+        <div className="mt-4">
           <h2>Out of Order Details</h2>
-          <label>
+          <label className="form-label">
             Reason:
             <textarea
+              className="form-control"
               value={reason}
               onChange={e => setReason(e.target.value)}
             />
           </label>
           <br />
-          <label>
+          <label className="form-check-label">
             Maintenance Contacted:
             <input
               type="checkbox"
+              className="form-check-input"
               checked={maintenanceContacted}
               onChange={e => setMaintenanceContacted(e.target.checked)}
             />
           </label>
           <br />
-          <button onClick={handleOutOfOrderSubmit}>Submit</button>
+          <button className="btn btn-primary mt-2" onClick={handleOutOfOrderSubmit}>Submit</button>
         </div>
       )}
     </div>
