@@ -29,17 +29,20 @@ const ProtectedPage = () => {
   }, [authState.loading, authState.isAuthenticated, authState.token]);
 
   const updateCartStatus = async (cartId, status) => {
+    const cart = carts.find(c => c._id === cartId);
+    if (!cart) return;
+
     try {
       const res = await axios.put(
         `http://localhost:5000/api/carts/${cartId}`,
-        { Cart_Status: status, reason, maintenanceContacted },
+        { Cart_Status: status, reason, maintenanceContacted, Order: cart.Order },
         {
           headers: {
             'x-auth-token': authState.token,
           },
         }
       );
-      setCarts(carts.map(cart => (cart._id === cartId ? res.data : cart)));
+      setCarts(carts.map(c => (c._id === cartId ? res.data : c)));
     } catch (err) {
       console.error('Error updating cart status:', err);
     }

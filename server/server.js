@@ -126,7 +126,8 @@ app.get('/api/admin', auth, adminAuth, (req, res) => {
 app.get('/api/carts', auth, adminAuth, async (req, res) => {
     try {
         //Find all existing carts
-        const carts = await Cart.find().sort({order: 1});
+        const carts = await Cart.find().sort({ Order: 1 }).exec();
+        console.log(carts);
 
         //send carts in response
         res.json(carts);
@@ -158,7 +159,7 @@ app.post('/api/carts', auth, adminAuth, async (req, res) => {
     }
   });
 
-  // Update cart status and order
+  //Update cart status and order
 app.put('/api/carts/:id', auth, async (req, res) => {
     const { Cart_Status, reason, maintenanceContacted, Order } = req.body;
   
@@ -204,7 +205,7 @@ app.put('/api/carts/:id', auth, async (req, res) => {
     }
   });
 
-  // Save new order of carts
+// Save new order of carts
 app.post('/api/carts/order', auth, async (req, res) => {
     const { carts } = req.body;
   
