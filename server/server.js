@@ -159,51 +159,58 @@ app.post('/api/carts', auth, adminAuth, async (req, res) => {
     }
   });
 
-  //Update cart status and order
-app.put('/api/carts/:id', auth, async (req, res) => {
-    const { Cart_Status, reason, maintenanceContacted, Order } = req.body;
-  
+  app.put('/api/carts/:id', auth, async (req, res) => {
+    const { Cart_Status, reason, maintenanceContacted } = req.body;
+
     if (!Cart_Status) {
-      return res.status(400).json({ msg: 'Please provide a valid status' });
+        return res.status(400).json({ msg: 'Please provide a valid status' });
     }
-  
+
     try {
-      const cart = await Cart.findByIdAndUpdate(req.params.id, { Cart_Status, Order }, { new: true });
-  
-      if (!cart) {
-        return res.status(404).json({ msg: 'Cart not found' });
-      }
-  
-      if (Cart_Status === 'out_of_order') {
-        // Send an email to admin staff
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
-        });
-  
-        const mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: 'jackbird27@gmail.com',
-          subject: 'Cart Out of Order Notification',
-          text: `Cart ${cart.Cart_Number} is out of order.\n\nReason: ${reason}\nMaintenance Contacted: ${maintenanceContacted ? 'Yes' : 'No'}`,
-        };
-  
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            return console.error('Error sending email:', error);
-          }
-          console.log('Email sent:', info.response);
-        });
-      }
-  
-      res.json(cart);
+        // Determine the new order value
+        const newOrder = Cart_Status === 'available' ? 1 : 999;
+
+        const cart = await Cart.findByIdAndUpdate(
+            req.params.id,
+            { Cart_Status, Order: newOrder },
+            { new: true }
+        );
+
+        if (!cart) {
+            return res.status(404).json({ msg: 'Cart not found' });
+        }
+
+        if (Cart_Status === 'out_of_order') {
+            // Send an email to admin staff
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: 'jackbird27@gmail.com',
+                subject: 'Cart Out of Order Notification',
+                text: `Cart ${cart.Cart_Number} is out of order.\n\nReason: ${reason}\nMaintenance Contacted: ${maintenanceContacted ? 'Yes' : 'No'}`,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.error('Error sending email:', error);
+                }
+                console.log('Email sent:', info.response);
+            });
+        }
+
+        res.json(cart);
     } catch (err) {
-      res.status(500).json({ msg: err.message });
+        res.status(500).json({ msg: err.message });
     }
-  });
+});
+
 
 // Save new order of carts
 app.post('/api/carts/order', auth, async (req, res) => {

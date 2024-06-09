@@ -35,14 +35,23 @@ const ProtectedPage = () => {
     try {
       const res = await axios.put(
         `http://localhost:5000/api/carts/${cartId}`,
-        { Cart_Status: status, reason, maintenanceContacted, Order: cart.Order },
+        { Cart_Status: status, reason, maintenanceContacted },
         {
           headers: {
             'x-auth-token': authState.token,
           },
         }
       );
-      setCarts(carts.map(c => (c._id === cartId ? res.data : c)));
+
+      // Update the cart order in the local state
+      const updatedCarts = carts.map(c => 
+        c._id === cartId ? { ...c, Cart_Status: status, Order: status === 'available' ? 1 : 999 } : c
+      );
+      
+      // Sort the carts locally
+      updatedCarts.sort((a, b) => a.Order - b.Order);
+
+      setCarts(updatedCarts);
     } catch (err) {
       console.error('Error updating cart status:', err);
     }
