@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 
 //User Registration
-app.post('/api/users/register', async (req, res) => {
+app.post('/api/users/register', auth, async (req, res) => {
 
     //Extract username, role and password from the request body
     const { username, role, password } = req.body;
@@ -48,27 +48,33 @@ app.post('/api/users/register', async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
       //Save the user to the db
       await user.save();
-  
-      //create a new payload with the user's id
-      const payload = { user: { id: user.id, role: user.role}};
-
-      //Sign a JSON Web Token with the payload and secret key, set to expire in 1 hour
-      jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
-
-        //Throw error during token generation if needed
-        if (err){
-            throw err;
-        } 
-
-        //Send the generated token in response
-        res.json({ token });
-      });
-
+      res.status(201).json(user);
       //If an error occurs send a 500 response
     } catch (err) {
       res.status(500).json({ msg: err.message });
     }
   });
+
+
+//Get all users
+app.get('/api/users', auth, async (req, res) => {
+    try {
+      const users = await User.find().select('-password');
+      res.json(users);
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
+    }
+  });
+
+  // Delete user
+app.delete('/api/users/:id', auth, async (req, res) => {
+    try {
+      await User.findByIdAndDelete(req.params.id);
+      res.json({ msg: 'User removed' });
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
+    }
+  });  
 
   //User Login
   app.post('/api/users/login', async (req, res) => {
@@ -123,7 +129,7 @@ app.get('/api/admin', auth, adminAuth, (req, res) => {
   });
 
 //Fetch all carts
-app.get('/api/carts', auth, adminAuth, async (req, res) => {
+app.get('/api/carts', auth, async (req, res) => {
     try {
         //Find all existing carts
         const carts = await Cart.find().sort({ Order: 1 }).exec();

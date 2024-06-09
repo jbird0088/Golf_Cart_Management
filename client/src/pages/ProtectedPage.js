@@ -5,13 +5,15 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import 'bootswatch/dist/lux/bootstrap.min.css'; // Ensure the correct path
 import '../styles.css';
 import deerCreekLogo from '../Logo/deercreek-logo.png'; // Import the logo
+import { useNavigate } from 'react-router-dom';
 
 const ProtectedPage = () => {
   const [carts, setCarts] = useState([]);
   const [selectedCart, setSelectedCart] = useState(null);
   const [reason, setReason] = useState('');
   const [maintenanceContacted, setMaintenanceContacted] = useState(false);
-  const { authState } = useContext(AuthContext);
+  const { authState, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCarts = async () => {
@@ -104,6 +106,19 @@ const ProtectedPage = () => {
     saveOrder();
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login'); // Redirect to login page
+  };
+
+  const handleAdminPage = () => {
+    if (authState.user.role.toLowerCase() === 'admin') {
+      navigate('/admin');
+    } else {
+      alert('You are not authorized to access the admin page');
+    }
+  };
+
   if (authState.loading) {
     return <p>Loading...</p>;
   }
@@ -115,8 +130,19 @@ const ProtectedPage = () => {
   return (
     <div className="container">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-          <img src={deerCreekLogo} alt="Deer Creek Logo" className="d-inline-block align-top" height="30" />
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">
+            <img src={deerCreekLogo} alt="Deer Creek Logo" className="d-inline-block align-top" height="30" />
+          </a>
+          <div className="d-flex ml-auto align-items-center">
+            {authState.user.role.toLowerCase() === 'admin' && (
+              <button className="btn btn-outline-light mr-2" onClick={handleAdminPage}>Admin Page</button>
+            )}
+            <button className="btn btn-outline-light" onClick={handleLogout}>Logout</button>
+          </div>
+        </div>
       </nav>
+      <h1 className="my-4">Protected Page</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="carts">
           {(provided) => (
@@ -130,20 +156,22 @@ const ProtectedPage = () => {
                       {...provided.dragHandleProps}
                       className="list-group-item d-flex justify-content-between align-items-center"
                     >
-                      <div>
+                      <div className="cart-info">
                         <strong>Cart {cart.Cart_Number}:</strong> {cart.Cart_Status}
                       </div>
-                      <select
-                        className="form-select"
-                        value={cart.Cart_Status}
-                        onChange={e => handleStatusChange(cart._id, e.target.value)}
-                      >
-                        <option value="available">Available</option>
-                        <option value="unavailable">Unavailable</option>
-                        <option value="out_of_order">Out of Order</option>
-                        <option value="charging">Charging</option>
-                        <option value="staff_cart">Staff Cart</option>
-                      </select>
+                      <div className="select-container">
+                        <select
+                          className="form-select"
+                          value={cart.Cart_Status}
+                          onChange={e => handleStatusChange(cart._id, e.target.value)}
+                        >
+                          <option value="available">Available</option>
+                          <option value="unavailable">Unavailable</option>
+                          <option value="out_of_order">Out of Order</option>
+                          <option value="charging">Charging</option>
+                          <option value="staff_cart">Staff Cart</option>
+                        </select>
+                      </div>
                     </li>
                   )}
                 </Draggable>

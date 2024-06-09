@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode'; // Correct named import
+import {jwtDecode} from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -31,14 +31,11 @@ const AuthProvider = ({ children }) => {
             return;
           }
 
-          console.log('Decoded Token:', decodedToken); // Log decoded token
-
           const res = await axios.get('http://localhost:5000/api/protected', {
             headers: {
               'x-auth-token': token,
             },
           });
-          console.log('Fetch User Response:', res.data); // Log response
 
           setAuthState({
             token,
@@ -46,14 +43,7 @@ const AuthProvider = ({ children }) => {
             isAuthenticated: true,
             loading: false,
           });
-          console.log('Updated Auth State:', {
-            token,
-            user: res.data.user,
-            isAuthenticated: true,
-            loading: false,
-          }); // Log updated state
         } catch (err) {
-          console.error('Error fetching user:', err); // Log error
           setAuthState({
             token: null,
             user: null,
@@ -77,8 +67,7 @@ const AuthProvider = ({ children }) => {
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', { username, password });
       const { token } = res.data;
-      const decoded = jwtDecode(token); 
-      console.log('Decoded JWT:', decoded); // Log the decoded JWT
+      const decoded = jwtDecode(token);
 
       localStorage.setItem('token', token);
       setAuthState({
@@ -87,14 +76,12 @@ const AuthProvider = ({ children }) => {
         isAuthenticated: true,
         loading: false,
       });
-      console.log('Updated Auth State after login:', {
-        token,
-        user: decoded.user,
-        isAuthenticated: true,
-        loading: false,
-      }); // Log updated state
     } catch (err) {
-      console.error('Login Error:', err); // Log error
+      const message = err.response && err.response.data && err.response.data.message 
+        ? err.response.data.message 
+        : 'Login failed';
+      console.error('Login Error:', message); // Log error
+      throw new Error(message);
     }
   };
 

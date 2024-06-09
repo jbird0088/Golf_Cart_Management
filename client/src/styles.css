@@ -12,6 +12,9 @@ body {
   margin-bottom: 10px;
   border-radius: 5px;
   transition: transform 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .list-group-item:hover {
@@ -54,3 +57,137 @@ img {
   height: 50px;
 }
 
+body, html {
+  height: 100%;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f7f9fc;
+  position: relative;
+}
+
+.card {
+  max-width: 400px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-outline-light {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.btn-outline-light:hover {
+  background-color: #ffffff;
+  color: #343a40;
+}
+
+.select-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+}
+
+.form-select {
+  width: 100%;
+}
+
+.cart-info {
+  flex: 1;
+}
+
+.login-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  height: 50px;
+}
+
+.admin-container {
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-header img {
+  height: 50px;
+}
+
+.admin-list-group-item {
+  margin-bottom: 10px;
+  border-radius: 5px;
+  transition: transform 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.admin-list-group-item:hover {
+  transform: scale(1.02);
+}
+
+.add-cart-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-cart-form input,
+.add-cart-form select,
+.add-cart-form button {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.add-cart-form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.add-cart-form button:hover {
+  background-color: #0056b3;
+}
