@@ -19,11 +19,13 @@ const ProtectedPage = () => {
     const fetchCarts = async () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
+          console.log('Fetching carts...');
           const response = await axios.get('http://localhost:5000/api/carts', {
             headers: {
               'x-auth-token': authState.token,
             },
           });
+          console.log('Carts fetched:', response.data);
           setCarts(response.data);
         } catch (err) {
           console.error('Error fetching carts:', err);
@@ -31,31 +33,41 @@ const ProtectedPage = () => {
       }
     };
     fetchCarts();
+    pollUpdates();
   }, [authState.loading, authState.isAuthenticated, authState.token]);
+
+  const pollUpdates = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/poll', {
+        headers: {
+          'x-auth-token': authState.token,
+        },
+      });
+      console.log('Polling updates:', response.data);
+      setCarts(response.data);
+      pollUpdates(); // Poll again after receiving the response
+    } catch (err) {
+      console.error('Error polling updates:', err);
+      setTimeout(pollUpdates, 10000); // Retry after 10 seconds if an error occurs
+    }
+  };
 
   const updateCartStatus = async (cartId, status) => {
     const cart = carts.find(c => c._id === cartId);
     if (!cart) return;
 
     try {
-      const response = await axios.put(
+      console.log('Updating cart status...');
+      await axios.put(
         `http://localhost:5000/api/carts/${cartId}`,
         { Cart_Status: status, reason, maintenanceContacted },
         {
           headers: {
             'x-auth-token': authState.token,
-          },
+          }
         }
       );
-
-      const updatedCarts = carts.map(c =>
-        c._id === cartId ? { ...c, Cart_Status: status, Order: status === 'available' ? 1 : 999 } : c
-      );
-
-      updatedCarts.sort((a, b) => a.Order - b.Order);
-
-      setCarts(updatedCarts);
-      console.log(response);
+      console.log('Cart status updated');
     } catch (err) {
       console.error('Error updating cart status:', err);
     }
@@ -76,7 +88,7 @@ const ProtectedPage = () => {
     setMaintenanceContacted(false);
   };
 
-  const onDragEnd = result => {
+  const onDragEnd = async (result) => {
     if (!result.destination) {
       return;
     }
@@ -87,23 +99,21 @@ const ProtectedPage = () => {
 
     setCarts(reorderedCarts);
 
-    const saveOrder = async () => {
-      try {
-        await axios.post(
-          'http://localhost:5000/api/carts/order',
-          { carts: reorderedCarts.map((cart, index) => ({ id: cart._id, order: index })) },
-          {
-            headers: {
-              'x-auth-token': authState.token,
-            },
+    try {
+      console.log('Saving cart order...');
+      await axios.post(
+        'http://localhost:5000/api/carts/order',
+        { carts: reorderedCarts.map((cart, index) => ({ id: cart._id, order: index })) },
+        {
+          headers: {
+            'x-auth-token': authState.token,
           }
-        );
-      } catch (err) {
-        console.error('Error saving cart order:', err);
-      }
-    };
-
-    saveOrder();
+        }
+      );
+      console.log('Cart order saved');
+    } catch (err) {
+      console.error('Error saving cart order:', err);
+    }
   };
 
   const handleLogout = () => {
