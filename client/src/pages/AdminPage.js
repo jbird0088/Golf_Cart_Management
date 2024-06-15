@@ -102,8 +102,14 @@ const AdminPage = () => {
       setCarts([...carts, res.data]);
       setNewCartNumber('');
       setNewCartStatus('available');
+      alert('Cart added successfully');
     } catch (err) {
-      console.error('Error adding new cart:', err);
+      if (err.response && err.response.status === 400 && err.response.data.msg === 'Cart already exists') {
+        alert('Cart already exists');
+      } else {
+        console.error('Error adding new cart:', err);
+        alert('Error adding new cart');
+      }
     }
   };
 
