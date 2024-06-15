@@ -31,7 +31,7 @@ const AuthProvider = ({ children }) => {
             return;
           }
 
-          const res = await axios.get('http://localhost:5000/api/protected', {
+          const res = await axios.get('https://golf-cart-management.onrender.com/api/protected', {
             headers: {
               'x-auth-token': token,
             },
@@ -65,7 +65,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', { username, password });
+      const res = await axios.post('https://golf-cart-management.onrender.com/api/users/login', { username, password });
       const { token } = res.data;
       const decoded = jwtDecode(token);
 

@@ -19,14 +19,14 @@ const AdminPage = () => {
     const fetchInitialData = async () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
-          const resCarts = await axios.get('http://localhost:5000/api/carts', {
+          const resCarts = await axios.get('https://golf-cart-management.onrender.com/api/carts', {
             headers: {
               'x-auth-token': authState.token,
             },
           });
           setCarts(resCarts.data);
 
-          const resUsers = await axios.get('http://localhost:5000/api/users', {
+          const resUsers = await axios.get('https://golf-cart-management.onrender.com/api/users', {
             headers: {
               'x-auth-token': authState.token,
             },
@@ -40,7 +40,7 @@ const AdminPage = () => {
 
     fetchInitialData();
 
-    const eventSource = new EventSource('http://localhost:5000/api/updates');
+    const eventSource = new EventSource('https://golf-cart-management.onrender.com/api/updates');
     eventSource.onmessage = function(event) {
       const updatedCarts = JSON.parse(event.data);
       setCarts(updatedCarts);
@@ -54,14 +54,14 @@ const AdminPage = () => {
   const handleRegisterUser = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/users/register', newUser, {
+      await axios.post('https://golf-cart-management.onrender.com/api/users/register', newUser, {
         headers: {
           'x-auth-token': authState.token,
         },
       });
       alert('User registered successfully');
       setNewUser({ username: '', role: 'Employee', password: '' });
-      const resUsers = await axios.get('http://localhost:5000/api/users', {
+      const resUsers = await axios.get('https://golf-cart-management.onrender.com/api/users', {
         headers: {
           'x-auth-token': authState.token,
         },
@@ -75,7 +75,7 @@ const AdminPage = () => {
 
   const handleRemoveUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+      await axios.delete(`https://golf-cart-management.onrender.com/api/users/${userId}`, {
         headers: {
           'x-auth-token': authState.token,
         },
@@ -91,7 +91,7 @@ const AdminPage = () => {
   const handleAddCart = async () => {
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/carts',
+        'https://golf-cart-management.onrender.com/api/carts',
         { Cart_Number: newCartNumber, Cart_Status: newCartStatus },
         {
           headers: {
@@ -115,7 +115,7 @@ const AdminPage = () => {
 
   const handleRemoveCart = async (cartId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/carts/${cartId}`, {
+      await axios.delete(`https://golf-cart-management.onrender.com/api/carts/${cartId}`, {
         headers: {
           'x-auth-token': authState.token,
         },
@@ -140,7 +140,7 @@ const AdminPage = () => {
   const updateCartOrder = async (reorderedCarts) => {
     try {
       await axios.post(
-        'http://localhost:5000/api/carts/order',
+        'https://golf-cart-management.onrender.com/api/carts/order',
         { carts: reorderedCarts.map((cart, index) => ({ id: cart._id, order: index })) },
         {
           headers: {
@@ -172,7 +172,7 @@ const AdminPage = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/carts/${cartId}`,
+        `https://golf-cart-management.onrender.com/api/carts/${cartId}`,
         { Cart_Status: status },
         {
           headers: {

@@ -20,7 +20,7 @@ const ProtectedPage = () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
           console.log('Fetching carts...');
-          const response = await axios.get('http://localhost:5000/api/carts', {
+          const response = await axios.get('https://golf-cart-management.onrender.com/api/carts', {
             headers: {
               'x-auth-token': authState.token,
             },
@@ -35,7 +35,7 @@ const ProtectedPage = () => {
 
     fetchInitialData();
 
-    const eventSource = new EventSource('http://localhost:5000/api/updates');
+    const eventSource = new EventSource('https://golf-cart-management.onrender.com/api/updates');
     eventSource.onmessage = function(event) {
       const updatedCarts = JSON.parse(event.data);
       setCarts(updatedCarts);
@@ -53,7 +53,7 @@ const ProtectedPage = () => {
     try {
       console.log('Updating cart status...');
       await axios.put(
-        `http://localhost:5000/api/carts/${cartId}`,
+        `https://golf-cart-management.onrender.com/api/carts/${cartId}`,
         { Cart_Status: status, reason, maintenanceContacted },
         {
           headers: {
@@ -96,7 +96,7 @@ const ProtectedPage = () => {
     try {
       console.log('Saving cart order...');
       await axios.post(
-        'http://localhost:5000/api/carts/order',
+        'https://golf-cart-management.onrender.com/api/carts/order',
         { carts: reorderedCarts.map((cart, index) => ({ id: cart._id, order: index })) },
         {
           headers: {
