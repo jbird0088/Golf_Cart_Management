@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.css": "/static/css/main.22720b89.css",
+    "main.js": "/static/js/main.cfdf4c89.js",
+    "static/media/deercreek-logo.png": "/static/media/deercreek-logo.f351472c67c5494c98e2.png",
+    "index.html": "/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.22720b89.css",
+    "static/js/main.cfdf4c89.js"
+  ]
+}
