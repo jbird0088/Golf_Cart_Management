@@ -9,7 +9,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 const AdminPage = () => {
   const [carts, setCarts] = useState([]);
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ username: '', role: '', password: '' });
+  const [newUser, setNewUser] = useState({ username: '', role: 'Employee', password: '' });
   const [newCartNumber, setNewCartNumber] = useState('');
   const [newCartStatus, setNewCartStatus] = useState('available');
   const { authState, logout } = useContext(AuthContext);
@@ -60,7 +60,7 @@ const AdminPage = () => {
         },
       });
       alert('User registered successfully');
-      setNewUser({ username: '', role: '', password: '' });
+      setNewUser({ username: '', role: 'Employee', password: '' });
       const resUsers = await axios.get('http://localhost:5000/api/users', {
         headers: {
           'x-auth-token': authState.token,
@@ -236,14 +236,16 @@ const AdminPage = () => {
             </div>
             <div className="form-group">
               <label>Role:</label>
-              <input
-                type="text"
+              <select
                 name="role"
                 value={newUser.role}
                 onChange={(e) => setNewUser({ ...newUser, [e.target.name]: e.target.value })}
                 className="form-control"
                 required
-              />
+              >
+                <option value="Admin">Admin</option>
+                <option value="Employee">Employee</option>
+              </select>
             </div>
             <div className="form-group">
               <label>Password:</label>
