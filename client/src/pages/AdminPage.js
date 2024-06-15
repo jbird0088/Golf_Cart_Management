@@ -207,9 +207,7 @@ const AdminPage = () => {
     <div className="container">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
             <img src={deerCreekLogo} alt="Deer Creek Logo" className="d-inline-block align-top" height="30" />
-          </a>
           <div className="d-flex ml-auto align-items-center">
             <button className="btn btn-outline-light mr-2" onClick={handleProtectedPage}>Protected Page</button>
             <button className="btn btn-outline-light" onClick={handleLogout}>Logout</button>

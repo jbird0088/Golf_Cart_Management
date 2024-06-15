@@ -135,9 +135,7 @@ const ProtectedPage = () => {
     <div className="container">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
             <img src={deerCreekLogo} alt="Deer Creek Logo" className="d-inline-block align-top" height="30" />
-          </a>
           <div className="d-flex ml-auto align-items-center">
             {authState.user.role.toLowerCase() === 'admin' && (
               <button className="btn btn-outline-light mr-2" onClick={handleAdminPage}>Admin Page</button>
