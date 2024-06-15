@@ -14,6 +14,7 @@ const { auth, adminAuth } = require('./middleware/auth');
 
 const allowedOrigins = [
     'https://golfcartmanagement-ipazzrlvk-jbird0088s-projects.vercel.app',
+    'https://golfcartmanager.app',
     'http://localhost:3000'
   ];
 
