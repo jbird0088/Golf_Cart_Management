@@ -16,7 +16,7 @@ const AdminPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCarts = async () => {
+    const fetchInitialData = async () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
           const resCarts = await axios.get('http://localhost:5000/api/carts', {
@@ -25,15 +25,7 @@ const AdminPage = () => {
             },
           });
           setCarts(resCarts.data);
-        } catch (err) {
-          console.error('Error fetching carts:', err);
-        }
-      }
-    };
 
-    const fetchUsers = async () => {
-      if (!authState.loading && authState.isAuthenticated) {
-        try {
           const resUsers = await axios.get('http://localhost:5000/api/users', {
             headers: {
               'x-auth-token': authState.token,
@@ -41,13 +33,22 @@ const AdminPage = () => {
           });
           setUsers(resUsers.data);
         } catch (err) {
-          console.error('Error fetching users:', err);
+          console.error('Error fetching initial data:', err);
         }
       }
     };
 
-    fetchCarts();
-    fetchUsers();
+    fetchInitialData();
+
+    const eventSource = new EventSource('http://localhost:5000/api/updates');
+    eventSource.onmessage = function(event) {
+      const updatedCarts = JSON.parse(event.data);
+      setCarts(updatedCarts);
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [authState.loading, authState.isAuthenticated, authState.token]);
 
   const handleRegisterUser = async (e) => {
@@ -103,6 +104,21 @@ const AdminPage = () => {
       setNewCartStatus('available');
     } catch (err) {
       console.error('Error adding new cart:', err);
+    }
+  };
+
+  const handleRemoveCart = async (cartId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/carts/${cartId}`, {
+        headers: {
+          'x-auth-token': authState.token,
+        },
+      });
+      setCarts(carts.filter(cart => cart._id !== cartId));
+      alert('Cart removed successfully');
+    } catch (err) {
+      console.error('Error removing cart:', err);
+      alert('Error removing cart');
     }
   };
 
@@ -291,7 +307,7 @@ const AdminPage = () => {
                       className="list-group-item d-flex justify-content-between align-items-center"
                     >
                       <div>
-                        <strong>Cart {cart.Cart_Number}:</strong> {cart.Cart_Status}
+                        <strong>Cart {cart.Cart_Number}:</strong> {cart.Cart_Status} (Unavailable: {cart.TimesUnavailable})
                       </div>
                       <select
                         className="form-select"
@@ -304,6 +320,7 @@ const AdminPage = () => {
                         <option value="charging">Charging</option>
                         <option value="staff_cart">Staff Cart</option>
                       </select>
+                      <button onClick={() => handleRemoveCart(cart._id)} className="btn btn-danger ml-2">Remove</button>
                     </li>
                   )}
                 </Draggable>

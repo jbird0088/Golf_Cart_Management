@@ -16,7 +16,7 @@ const ProtectedPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCarts = async () => {
+    const fetchInitialData = async () => {
       if (!authState.loading && authState.isAuthenticated) {
         try {
           console.log('Fetching carts...');
@@ -32,25 +32,19 @@ const ProtectedPage = () => {
         }
       }
     };
-    fetchCarts();
-    pollUpdates();
-  }, [authState.loading, authState.isAuthenticated, authState.token]);
 
-  const pollUpdates = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/poll', {
-        headers: {
-          'x-auth-token': authState.token,
-        },
-      });
-      console.log('Polling updates:', response.data);
-      setCarts(response.data);
-      pollUpdates(); // Poll again after receiving the response
-    } catch (err) {
-      console.error('Error polling updates:', err);
-      setTimeout(pollUpdates, 10000); // Retry after 10 seconds if an error occurs
-    }
-  };
+    fetchInitialData();
+
+    const eventSource = new EventSource('http://localhost:5000/api/updates');
+    eventSource.onmessage = function(event) {
+      const updatedCarts = JSON.parse(event.data);
+      setCarts(updatedCarts);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [authState.loading, authState.isAuthenticated, authState.token]);
 
   const updateCartStatus = async (cartId, status) => {
     const cart = carts.find(c => c._id === cartId);
