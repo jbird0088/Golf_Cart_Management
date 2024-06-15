@@ -12,15 +12,26 @@ const User = require('./models/User');
 const Cart = require('./models/Cart');
 const { auth, adminAuth } = require('./middleware/auth');
 
+const allowedOrigins = [
+    'https://golfcartmanagement-ipazzrlvk-jbird0088s-projects.vercel.app',
+    'http://localhost:3000'
+  ];
+
 const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Content-Type', 'x-auth-token'],
-  credentials: true,
-}));
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'x-auth-token'],
+    credentials: true,
+  }));
 
 app.use(express.json());
 
